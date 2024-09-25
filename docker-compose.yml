@@ -5,23 +5,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: laravel_app
+    container_name: study_app
     volumes:
       - .:/var/www
     networks:
       - app-network
     environment:
-      DATABASE_URL: "${DATABASE_URL}"
+      DATABASE_URL: postgresql://gestion_apprenant_owner:qkyWs80NnUKf@ep-broad-fire-a5fqb69c.us-east-2.aws.neon.tech/gestion_apprenant?sslmode=require
     expose:
       - "9000" 
 
   webserver:
     image: nginx:latest
-    container_name: laravel_nginx
+    container_name: study_app_nginx
     depends_on:
       - app
     ports:
-      - "2025:80"
+      - "2027:80"  # Le port externe 2025 (changez-le pour le port que vous souhaitez) est mappé au port interne 80 du conteneur Nginx
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - .:/var/www
