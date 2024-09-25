@@ -1,99 +1,92 @@
 {
-  "openapi": "3.0.0",
-  "info": {
-    "title": "Auth API",
-    "description": "API for user authentication using Bearer Token.",
-    "version": "1.0.0"
-  },
-  "servers": [
-    {
-      "url": "https://study-app-yv0g.onrender.com",
-      "description": "Production server"
-    }
-  ],
-  "paths": {
-    "/api/auth/login": {
-      "post": {
-        "summary": "Log in a user",
-        "description": "Logs in a user by validating their email and password, returning a Bearer Token.",
-        "tags": ["Auth"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "user@example.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "format": "password",
-                    "example": "password123"
-                  }
-                },
-                "required": ["email", "password"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Login successful, returns the Bearer Token.",
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Auth API",
+      "description": "API for user authentication using Bearer Token.",
+      "version": "1.0.0"
+    },
+    "paths": {
+      "/api/auth/login": {
+        "post": {
+          "summary": "Log in a user",
+          "description": "Logs in a user by validating their email and password, returning a Bearer Token.",
+          "tags": ["Auth"],
+          "requestBody": {
+            "required": true,
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "token": {
+                    "email": {
                       "type": "string",
-                      "example": "eyJhbGciOiJIUzI1NiIsInR5..."
+                      "format": "email",
+                      "example": "user@example.com"
+                    },
+                    "password": {
+                      "type": "string",
+                      "format": "password",
+                      "example": "password123"
                     }
-                  }
+                  },
+                  "required": ["email", "password"]
                 }
               }
             }
           },
-          "401": {
-            "description": "Unauthorized. Invalid email or password."
-          },
-          "422": {
-            "description": "Validation error. Invalid input data."
+          "responses": {
+            "200": {
+              "description": "Login successful, returns the Bearer Token.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": "string",
+                        "example": "eyJhbGciOiJIUzI1NiIsInR5..."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized. Invalid email or password."
+            }
+          }
+        }
+      },
+      "/api/logout": {
+        "post": {
+          "summary": "Log out a user",
+          "description": "Logs out a user using the Bearer Token.",
+          "tags": ["Auth"],
+          "security": [{
+            "bearerAuth": []
+          }],
+          "responses": {
+            "200": {
+              "description": "Logout successful."
+            },
+            "401": {
+              "description": "Unauthorized. Bearer Token is missing or invalid."
+            }
           }
         }
       }
     },
-    "/api/auth/logout": {
-      "post": {
-        "summary": "Log out a user",
-        "description": "Logs out a user using the Bearer Token.",
-        "tags": ["Auth"],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Logout successful."
-          },
-          "401": {
-            "description": "Unauthorized. Bearer Token is missing or invalid."
-          }
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
         }
       }
-    }
-  },
-  "components": {
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      }
-    }
+    },
+    "security": [{
+      "bearerAuth": []
+    }]
   }
-}
+  
