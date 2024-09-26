@@ -17,6 +17,9 @@ return [
         'model' => [
             'user' => \App\Models\User::class, // User model
         ],
+        'Repository'=> [
+            'class' => \App\Repositories\UserRepository::class,
+        ],
     ],
 
     // Firebase configuration
@@ -30,6 +33,9 @@ return [
         ],
         'model'=> [
             'user'=> \App\Models\Firebase\UserFirebase::class,
+        ],
+        'Repository'=> [
+            'class' => \App\Repositories\Firebase\UserFirebaseRepository::class,
         ],
     ],
 
