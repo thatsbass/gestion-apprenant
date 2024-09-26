@@ -10,6 +10,7 @@ return [
      */
 
     'default' => env('FIREBASE_PROJECT', 'app'),
+    'firebase_project_id' => env('FIREBASE_PROJECT_ID', ''),
 
     /*
      * ------------------------------------------------------------------------

@@ -7,11 +7,8 @@ use Illuminate\Support\Collection;
 
 abstract class FirebaseModel
 {
-   
     protected FirebaseService $firebaseService;
-
     protected string $collection;
-
     protected array $attributes = [];
 
     public function __construct(FirebaseService $firebaseService = null)
@@ -24,13 +21,12 @@ abstract class FirebaseModel
         return $this->attributes[$property] ?? null;
     }
 
-
     public function __set($property, $value): void
     {
         $this->attributes[$property] = $value;
     }
 
-       public function setAttrs(array $values, $id = null): void
+    public function setAttrs(array $values, $id = null): void
     {
         $this->attributes = $values;
         $this->attributes['id'] = $id;
@@ -64,7 +60,6 @@ abstract class FirebaseModel
         return $model;
     }
 
- 
     public function where(string $key, $value): Collection
     {
         $collection = new Collection();
@@ -79,7 +74,6 @@ abstract class FirebaseModel
         return $collection;
     }
 
-  
     public function create(array $data, $id = null, $path = null): ?self
     {
         if ($path) {
@@ -91,7 +85,6 @@ abstract class FirebaseModel
         return $model;
     }
 
-    
     public function update($id, array $data): bool
     {
         try {
@@ -101,6 +94,7 @@ abstract class FirebaseModel
             return false;
         }
     }
+
     public function destroy($id): bool
     {
         try {
@@ -110,7 +104,6 @@ abstract class FirebaseModel
             return false;
         }
     }
-
 
     public function save(): bool
     {
@@ -126,22 +119,22 @@ abstract class FirebaseModel
         return true;
     }
 
-    
     public function delete(): bool
     {
         $id = $this->attributes['id'];
         return $this->destroy($id);
     }
 
-
     public function toArray(): array
     {
         return $this->attributes;
     }
+
     public function toJson(): string
     {
         return json_encode($this->attributes);
     }
+
     public function belongsToOne(string $modelClass, string $relatedKey)
     {
         $relatedId = $this->attributes[$relatedKey] ?? null;

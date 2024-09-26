@@ -2,12 +2,8 @@
 
 namespace App\Models\Firebase;
 
-
-use Laravel\Sanctum\HasApiTokens;
-
 class UserFirebase extends FirebaseModel
 {
-    use HasApiTokens;
         protected $fillable = [
             'nom',
             'prenom',

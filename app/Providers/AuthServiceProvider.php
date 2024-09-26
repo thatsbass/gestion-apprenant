@@ -3,17 +3,14 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Services\Authentification\AuthFactory;
+use App\Factories\AuthFactory;
 
 class AuthServiceProvider extends ServiceProvider
 {
-    /**
-     * Enregistre les services d'authentification.
-     */
     public function register()
     {
         $this->app->singleton('AuthService', function ($app) {
-            return AuthFactory::make(config('auth.default'));
+            return AuthFactory::make(config('db_service.default'));
         });
     }
 }
