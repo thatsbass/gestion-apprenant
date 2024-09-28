@@ -2,170 +2,95 @@
 
 namespace App\Models\Firebase;
 
-use App\Services\Firebase\FirebaseService;
+use Kreait\Laravel\Firebase\Facades\Firebase; 
 use Illuminate\Support\Collection;
 
 abstract class FirebaseModel
 {
-    protected FirebaseService $firebaseService;
-    protected string $collection;
-    protected array $attributes = [];
+    protected $database;
+    protected $table;
 
-    public function __construct(FirebaseService $firebaseService = null)
+    public function __construct()
     {
-        $this->firebaseService = $firebaseService ?? new FirebaseService();
+        $this->initializeFirebase();
     }
 
-    public function __get($property)
+    // Initialisation de Firebase
+    protected function initializeFirebase()
     {
-        return $this->attributes[$property] ?? null;
+        $this->database = Firebase::database(); 
     }
 
-    public function __set($property, $value): void
+
+    public function create($path = null, array $data, string $uid = null)
     {
-        $this->attributes[$property] = $value;
-    }
-
-    public function setAttrs(array $values, $id = null): void
-    {
-        $this->attributes = $values;
-        $this->attributes['id'] = $id;
-    }
-
-    public function all(): Collection
-    {
-        $collection = new Collection();
-        $results = $this->firebaseService->fetchAllRecords($this->collection);
-
-        foreach ($results as $id => $value) {
-            $model = new static($this->firebaseService);
-            $model->setAttrs($value, $id);
-            $collection->push($model);
-        }
-
-        return $collection;
-    }
-
-    public function find($id): ?self
-    {
-        $result = $this->firebaseService->fetchRecord($this->collection, $id);
-
-        if (empty($result)) {
-            return null;
-        }
-
-        $model = new static($this->firebaseService);
-        $model->setAttrs($result, $id);
-
-        return $model;
-    }
-
-    public function where(string $key, $value): Collection
-    {
-        $collection = new Collection();
-        $results = $this->firebaseService->fetchAllRecordsByQuery($this->collection, $key, $value);
-
-        foreach ($results as $id => $value) {
-            $model = new static($this->firebaseService);
-            $model->setAttrs($value, $id);
-            $collection->push($model);
-        }
-
-        return $collection;
-    }
-
-    public function create(array $data, $id = null, $path = null): ?self
-    {
+        // Si un chemin est fourni, on l'ajoute au chemin de la table
+        $referencePath = $this->table;
         if ($path) {
-            $this->collection = $path;
+            $referencePath .= '/' . $path;
         }
-        $id = $this->firebaseService->createRecord($this->collection, $data, $id);
-        $model = new static($this->firebaseService);
-        $model->setAttrs($data, $id);
-        return $model;
-    }
-
-    public function update($id, array $data): bool
-    {
-        try {
-            $this->firebaseService->updateRecord($this->collection, $id, $data);
-            return true;
-        } catch (\Exception $e) {
-            return false;
+    
+        // Si un UID est fourni, enregistrez les données sous cet UID
+        if ($uid) {
+            $this->database->getReference($referencePath . '/' . $uid)->set($data);
+            $data['uid'] = $uid; // Ajouter l'UID aux données retournées
+            return $data;
         }
+    
+        // Si aucun UID n'est fourni, créer une nouvelle entrée avec une clé générée automatiquement
+        $newRef = $this->database->getReference($referencePath)->push($data);
+        $data['id'] = $newRef->getKey(); 
+        return $data;
+    }
+    
+    
+    // Récupérer toutes les entrées
+    public function all()
+    {
+        $snapshot = $this->database->getReference($this->table)->getSnapshot();
+        return $snapshot->getValue(); // Retourner toutes les valeurs
     }
 
-    public function destroy($id): bool
+    // Mettre à jour une entrée existante
+    public function update(string $uid, array $data)
     {
-        try {
-            $this->firebaseService->deleteRecord($this->collection, $id);
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
+
+        $this->database->getReference($this->table . '/' . $uid)->update($data);
     }
 
-    public function save(): bool
+    // Supprimer une entrée
+    public function delete(string $uid)
     {
-        $id = $this->attributes['id'] ?? null;
-
-        if ($id === null) {
-            $id = $this->firebaseService->createRecord($this->collection, $this->attributes);
-            $this->attributes['id'] = $id;
-        } else {
-            $this->firebaseService->updateRecord($this->collection, $id, $this->attributes);
-        }
-
-        return true;
+        $this->database->getReference($this->table . '/' . $uid)->remove();
     }
 
-    public function delete(): bool
+    // Trouver une entrée par UID
+    public function find(string $uid)
     {
-        $id = $this->attributes['id'];
-        return $this->destroy($id);
+        $snapshot = $this->database->getReference($this->table . '/' . $uid)->getSnapshot();
+        return $snapshot->getValue(); // Retourner la valeur trouvée
     }
 
-    public function toArray(): array
+    // Filtrer les entrées
+    public function where(string $key, $value)
     {
-        return $this->attributes;
+        $query = $this->database->getReference($this->table)
+            ->orderByChild($key)
+            ->equalTo($value);
+
+        $snapshot = $query->getSnapshot();
+        return $snapshot->getValue(); // Retourner les valeurs filtrées
     }
 
-    public function toJson(): string
+    // Convertir l'objet en tableau
+    public function toArray()
     {
-        return json_encode($this->attributes);
+        return json_decode(json_encode($this), true); // Conversion en tableau
     }
 
-    public function belongsToOne(string $modelClass, string $relatedKey)
+    // Convertir l'objet en JSON
+    public function toJson()
     {
-        $relatedId = $this->attributes[$relatedKey] ?? null;
-
-        if ($relatedId === null) {
-            return null;
-        }
-
-        $relatedModel = new $modelClass();
-        $result = $this->firebaseService->fetchRecord($relatedModel->collection, $relatedId);
-
-        if (empty($result)) {
-            return null;
-        }
-
-        $relatedModel->setAttrs($result, $relatedId);
-        return $relatedModel;
-    }
-
-    public function hasMany(string $modelClass, string $foreignKey): Collection
-    {
-        $relatedModel = new $modelClass();
-        $results = $this->firebaseService->fetchAllRecordsByQuery($relatedModel->collection, $foreignKey, $this->attributes['id']);
-
-        $collection = new Collection();
-        foreach ($results as $id => $value) {
-            $relatedInstance = new $modelClass();
-            $relatedInstance->setAttrs($value, $id);
-            $collection->push($relatedInstance);
-        }
-
-        return $collection;
+        return json_encode($this->toArray()); // Conversion en JSON
     }
 }

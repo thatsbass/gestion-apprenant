@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Repositories\Interfaces\ComposeRepositoryInterface;
-use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\Firebase\FirebaseStorageService;
 use App\Services\ExportPdfService;
 
@@ -20,35 +19,35 @@ class UserService
     }
 
 
-    // public function all($request)
-    // {
-    //     $data = $this->repository->all()->toArray();
+    public function all($request)
+    {
+        $data = $this->repository->all()->toArray();
 
-    //     if ($request['format'] === 'pdf') {
-    //         $url = app(ExportPdfService::class)->export(['users' => $data], 'users/index', 'Liste_users');
-    //     } 
-    //     elseif ($request['format'] === 'excel') {
-    //         $formattedData = array_map(function($item) {
-    //             return [
-    //                 'Nom' => $item->nom,
-    //                 'Prenom' => $item->prenom,
-    //                 'Telephone' => $item->telephone,
-    //                 'Email' => $item->email,
-    //                 'Fonction' => $item->fonction,
-    //                 'Adresse' => $item->adresse,
-    //                 'Rôle' => $item->role,
-    //                 'Statut' => $item->statut,
-    //             ];
-    //         }, $data);
+        if ($request['format'] === 'pdf') {
+            $url = app(ExportPdfService::class)->export(['users' => $data], 'users/index', 'Liste_users');
+        } 
+        elseif ($request['format'] === 'excel') {
+            $formattedData = array_map(function($item) {
+                return [
+                    'Nom' => $item->nom,
+                    'Prenom' => $item->prenom,
+                    'Telephone' => $item->telephone,
+                    'Email' => $item->email,
+                    'Fonction' => $item->fonction,
+                    'Adresse' => $item->adresse,
+                    'Rôle' => $item->role,
+                    'Statut' => $item->statut,
+                ];
+            }, $data);
 
-    //         $headers = ['Nom', 'Prenom', 'Telephone', 'Email', 'Fonction', 'Adresse', 'Rôle', 'Statut'];
-    //         $url = app(ExcelService::class)->exportExcelFile($formattedData, $headers, 'Liste_users');
-    //     }
-    //     else {
-    //         $url =  $this->repository->all()->map->toArray();
-    //     }
-    //     return $url;
-    // }
+            $headers = ['Nom', 'Prenom', 'Telephone', 'Email', 'Fonction', 'Adresse', 'Rôle', 'Statut'];
+            $url = app(ExcelService::class)->exportExcelFile($formattedData, $headers, 'Liste_users');
+        }
+        else {
+            $url =  $this->repository->all()->map->toArray();
+        }
+        return $url;
+    }
 
 
     public function find($id)

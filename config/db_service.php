@@ -27,8 +27,8 @@ return [
         'auth' => [
             'class' => \App\Services\Authentification\FirebaseAuthService::class,
             'config' => [
-                'firebase_credentials' => env('FIREBASE_CREDENTIALS'),
-                'firebase_database_url' => env('FIREBASE_DATABASE_URL'),
+                'credentials' => env('FIREBASE_CREDENTIALS'),
+                'url' => env('FIREBASE_DATABASE_URL'),
             ],
         ],
         'model'=> [

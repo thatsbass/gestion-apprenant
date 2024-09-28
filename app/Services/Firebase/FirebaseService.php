@@ -2,72 +2,59 @@
 
 namespace App\Services\Firebase;
 
-use Kreait\Firebase\Factory;
+// use Kreait\Firebase\Facades\Firebase; // Importez la façade
+use Kreait\Laravel\Firebase\Facades\Firebase;
 
 class FirebaseService
 {
-    protected $firestore;
-    protected $credentials;
+    protected $database;
 
     public function __construct()
     {
-
-        $this->credentials = config("db_service.firebase.auth.config");
-
-        $this->firestore = (new Factory)
-            ->withServiceAccount($this->credentials["firebase_credentials"])
-            ->createFirestore()
-            ->database();
+        // Récupérez l'instance de la base de données via la façade
+        $this->database = Firebase::database();
     }
 
-    public function fetchRecord(string $collection, string $id): array
+    public function fetchRecord(string $path): array
     {
-        $document = $this->firestore->collection($collection)->document($id)->snapshot();
-        return $document->exists() ? $document->data() : [];
+        // Obtenez le document par son chemin
+        $snapshot = $this->database->getReference($path)->getValue();
+        return $snapshot ?? [];
     }
 
-    public function fetchAllRecords(string $collection): array
+    public function fetchAllRecords(string $path): array
     {
-        $documents = $this->firestore->collection($collection)->documents();
-        $results = [];
-
-        foreach ($documents as $document) {
-            $results[$document->id()] = $document->data();
-        }
-
-        return $results;
+        // Obtenez tous les documents du chemin donné
+        $snapshot = $this->database->getReference($path)->getValue();
+        return $snapshot ?? [];
     }
 
-    public function fetchAllRecordsByQuery(string $collection, string $key, $value): array
+    public function fetchAllRecordsByQuery(string $path, string $key, $value): array
     {
-        $documents = $this->firestore->collection($collection)->where($key, '=', $value)->documents();
-        $results = [];
-
-        foreach ($documents as $document) {
-            $results[$document->id()] = $document->data();
-        }
-
-        return $results;
+        // Requêtes personnalisées ne sont pas directement supportées en Realtime DB
+        // Vous pourriez avoir besoin d'implémenter une logique de filtrage après récupération
+        $records = $this->fetchAllRecords($path);
+        return array_filter($records, function ($record) use ($key, $value) {
+            return isset($record[$key]) && $record[$key] == $value;
+        });
     }
 
-    public function createRecord(string $collection, array $data, string $id = null): string
+    public function createRecord(string $path, array $data): string
     {
-        if ($id) {
-            $this->firestore->collection($collection)->document($id)->set($data);
-        } else {
-            $document = $this->firestore->collection($collection)->add($data);
-            return $document->id();
-        }
-        return $id;
+        // Ajoutez un nouvel enregistrement à la Realtime Database
+        $newReference = $this->database->getReference($path)->push($data);
+        return $newReference->getKey(); // Retourne la clé de l'enregistrement ajouté
     }
 
-    public function updateRecord(string $collection, string $id, array $data): void
+    public function updateRecord(string $path, array $data): void
     {
-        $this->firestore->collection($collection)->document($id)->set($data, ['merge' => true]);
+        // Mettez à jour l'enregistrement à l'emplacement spécifié
+        $this->database->getReference($path)->update($data);
     }
 
-    public function deleteRecord(string $collection, string $id): void
+    public function deleteRecord(string $path): void
     {
-        $this->firestore->collection($collection)->document($id)->delete();
+        // Supprimez l'enregistrement à l'emplacement spécifié
+        $this->database->getReference($path)->remove();
     }
 }

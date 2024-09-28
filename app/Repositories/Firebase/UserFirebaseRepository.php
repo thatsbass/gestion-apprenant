@@ -3,14 +3,14 @@
 namespace App\Repositories\Firebase;
 use App\Facade\UserFirebaseFacade as User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
-use Kreait\Firebase\Contract\Auth as FirebaseAuth;
+use Kreait\Laravel\Firebase\Facades\Firebase;
 
 class UserFirebaseRepository implements UserRepositoryInterface
 {
-    protected $firestore;
-    public function __construct(FirebaseAuth $firebaseAuth)
+    protected $auth;
+    public function __construct()
     {
-        $this->firestore = $firebaseAuth;
+        $this->auth = Firebase::auth();
     }
 
  
@@ -24,11 +24,9 @@ class UserFirebaseRepository implements UserRepositoryInterface
     }
     public function create(array $data)
     {
-        $user = $this->firestore->createUserWithEmailAndPassword($data['email'], $data['password']);
-        
-        $uid = $user->uid;
+        $user = $this->auth->createUserWithEmailAndPassword($data['email'], $data['password']);
         $data['password'] = $user->passwordHash;
-        User::create($data, $uid);
+        User::create(null, $data, $user->uid);
         return $user;
     }
     public function update( array $data)

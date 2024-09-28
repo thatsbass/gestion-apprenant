@@ -17,7 +17,6 @@ class ComposeRepository implements ComposeRepositoryInterface
         $this->repoFirebase = $repoFirebase;
         $this->repoPgsql = $repoPgsql;
 
-        
         $this->activeRepository = app(UserFirebaseRepository::class);
     }
 

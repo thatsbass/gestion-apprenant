@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Services\Interfaces\ReferentielServiceInterface;
+use App\Repositories\Interfaces\ReferentielRepositoryInterface;
+use App\Services\ReferentielService;
 use Illuminate\Support\ServiceProvider;
-use Kreait\Firebase\Factory;
+use App\Exports\ModelExport;
+
 
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +17,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-       //
+        $this->app->bind(ModelExport::class, function ($app, $modelExport) {
+            $model = config("models.export.{$modelExport}");
+            return new $model();
+        });
+
+        $this->app->bind(ReferentielRepositoryInterface::class, ReferentielService::class);
+        $this->app->bind(ReferentielServiceInterface::class, ReferentielService::class);
     
     }
 

@@ -2,23 +2,20 @@
 
 namespace App\Services\Authentification;
 
-use Kreait\Firebase\Auth as FirebaseAuth;
-use Kreait\Firebase\Factory;
+// use Kreait\Firebase\Auth as FirebaseAuth;
+// use Kreait\Firebase\Factory;
+use Kreait\Laravel\Firebase\Facades\Firebase;
 use App\Contracts\AuthServiceInterface;
 use App\Facade\UserFirebaseFacade as User;
 
 class FirebaseAuthService implements AuthServiceInterface
 {
-    protected $firebaseAuth;
-    protected $credentials;
+    protected $auth;
 
     public function __construct()
     {
-        $this->credentials = env('FIREBASE_CREDENTIALS');
-        $this->firebaseAuth = (new Factory)
-        ->withServiceAccount($this->credentials)
-        ->withProjectId(env('FIREBASE_PROJECT_ID'))
-        ->createAuth();
+        // $this->credentials = env('FIREBASE_CREDENTIALS');
+        $this->auth = Firebase::auth();
     }
 
    
@@ -26,18 +23,18 @@ class FirebaseAuthService implements AuthServiceInterface
     {
         try {
             // Sign in using Firebase Auth
-            $signInResult = $this->firebaseAuth->signInWithEmailAndPassword($email, $password);
-
-            $idToken = $signInResult->idToken();
-            $user = User::find($signInResult->firebaseUserId());
-
+            $signInResult = $this->auth->signInWithEmailAndPassword($email, $password);
+            $idToken = $signInResult->idToken(); // Get the generated ID token
+            $uid = $signInResult->firebaseUserId(); // Use the correct method to get the UID
+            $user = User::find($uid);
+            // dd($user);
             if (!$user) {
                 return response()->json(['error' => 'User not found in local database'], 404);
             }
 
             return response()->json([
                 'token' => $idToken,
-                'user' => $user->toArray(),
+                'user' => $user,
             ], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Firebase login failed: ' . $e->getMessage()], 401);

@@ -1,58 +1,34 @@
-# Utiliser une image officielle de PHP avec FPM (FastCGI Process Manager) version 8.2 
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
-# Installer les dépendances du système
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libzip-dev \
-    zip \
-    unzip \
     git \
     curl \
     libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    nginx \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql zip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    libpq-dev
 
-# Installer Composer
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
+
+# Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copier le contenu de l'application dans le conteneur
-COPY . /var/www
-
-# Définir le répertoire de travail
+# Set working directory
 WORKDIR /var/www
 
-# Installer les dépendances PHP avec Composer
+# Copy existing application directory contents
+COPY . /var/www
+
+# Install dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-# Créer les répertoires nécessaires et définir les permissions
-RUN mkdir -p /var/www/storage/logs /var/www/bootstrap/cache \
-    && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
-    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
-
-# Créer le fichier de log Laravel et définir les permissions
-RUN touch /var/www/storage/logs/laravel.log \
-    && chown www-data:www-data /var/www/storage/logs/laravel.log \
-    && chmod 664 /var/www/storage/logs/laravel.log
-
-# Configurer PHP-FPM pour s'exécuter en tant que www-data
-RUN sed -i 's/user = www-data/user = www-data/g' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/group = www-data/group = www-data/g' /usr/local/etc/php-fpm.d/www.conf
-
-# Configurer Nginx
-COPY nginx/default.conf /etc/nginx/sites-available/default
-RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-
-# Exposer les ports
-EXPOSE 80 9000
-
-# Copier et exécuter le script de démarrage
-COPY start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
-
-# Lancer le script de démarrage quand le conteneur démarre
-CMD ["sh", "/usr/local/bin/start.sh"]
-
+# Expose port 8000 and start Laravel development server
+EXPOSE 8000
+CMD php artisan serve --host=0.0.0.0 --port=8000

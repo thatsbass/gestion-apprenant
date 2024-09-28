@@ -25,10 +25,11 @@ class UserController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->all();
-        // dd($data);
         $data['photo'] = $request->file('photo')->store('photos/users', 'public');
         $user = $this->userService->create($data);
         return response()->json($user, 201);
     }
-
 }
+
+
+

@@ -2,12 +2,12 @@
 
 namespace App\Models\Firebase;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class ReferentielFirebase extends FirebaseModel
 {
-    use HasApiTokens, HasFactory;
+    use HasApiTokens, Notifiable;
 
     protected $fillable = [
         'code',
@@ -18,5 +18,5 @@ class ReferentielFirebase extends FirebaseModel
         'competences' 
     ];
 
-    protected string $collection = 'referentiels';
+    protected $table = 'referentiels';
 }

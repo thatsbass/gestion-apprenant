@@ -16,5 +16,5 @@ class UserFirebase extends FirebaseModel
             'statut',
             'photo',
         ];
-    protected string $collection = 'users';
+ protected $table = 'users';
 }

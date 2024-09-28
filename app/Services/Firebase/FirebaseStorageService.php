@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Services\Firebase;
-
-use Kreait\Firebase\Factory;
+use Kreait\Laravel\Firebase\Facades\Firebase;
 class FirebaseStorageService
 {
     protected $firestore;
@@ -10,12 +9,7 @@ class FirebaseStorageService
 
     public function __construct()
     {
-        // Initialiser Firebase avec les credentials
-        $this->credentials = config("db_service.firebase.auth.config");
-
-        $this->firestore = (new Factory)
-            ->withServiceAccount($this->credentials["firebase_credentials"])
-            ->createStorage();
+        $this->firestore = Firebase::storage();
     }
 
     public function uploadFile($localFilePath, $firebaseFolder, $fileName)
