@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repositories\Interfaces;
+namespace App\Services\Interfaces;
 
-interface PromotionFirebaseRepositoryInterface
+interface PromotionServiceInterface 
 {
     public function create(array $data);
     public function update($id, array $data);
@@ -10,10 +10,9 @@ interface PromotionFirebaseRepositoryInterface
     public function all();
     public function addReferentielToPromotion($id, array $data);
     public function removeReferentiel($id);
-
     public function closePromotion($id);
     public function getReferentielActivePromotion($id);
-
     public function getStaticPromotion($id);
-
+    public function generatePromoIndex(array$dataPromo);
+    public function uploadPhoto($data);
 }

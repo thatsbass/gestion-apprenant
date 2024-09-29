@@ -79,7 +79,7 @@ abstract class FirebaseModel
             ->equalTo($value);
 
         $snapshot = $query->getSnapshot();
-        return $snapshot->getValue(); // Retourner les valeurs filtrées
+        return $snapshot->getValue(); 
     }
 
     // Convertir l'objet en tableau

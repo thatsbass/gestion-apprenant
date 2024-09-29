@@ -14,7 +14,6 @@ class FirebaseAuthService implements AuthServiceInterface
 
     public function __construct()
     {
-        // $this->credentials = env('FIREBASE_CREDENTIALS');
         $this->auth = Firebase::auth();
     }
 
@@ -22,16 +21,14 @@ class FirebaseAuthService implements AuthServiceInterface
     public function login($email, $password)
     {
         try {
-            // Sign in using Firebase Auth
             $signInResult = $this->auth->signInWithEmailAndPassword($email, $password);
-            $idToken = $signInResult->idToken(); // Get the generated ID token
-            $uid = $signInResult->firebaseUserId(); // Use the correct method to get the UID
+            $idToken = $signInResult->idToken();
+            $uid = $signInResult->firebaseUserId(); 
             $user = User::find($uid);
             // dd($user);
             if (!$user) {
                 return response()->json(['error' => 'User not found in local database'], 404);
             }
-
             return response()->json([
                 'token' => $idToken,
                 'user' => $user,
@@ -45,9 +42,9 @@ class FirebaseAuthService implements AuthServiceInterface
     public function logout($token)
     {
         try {
-            $verifiedToken = $this->firebaseAuth->verifyIdToken($token);
+            $verifiedToken = $this->auth->verifyIdToken($token);
             $uid = $verifiedToken->claims()->get('sub');
-            $this->firebaseAuth->revokeRefreshTokens($uid);
+            $this->auth->revokeRefreshTokens($uid);
 
             return response()->json(['message' => 'Logged out from Firebase'], 200);
         } catch (\Exception $e) {

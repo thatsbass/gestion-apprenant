@@ -29,7 +29,6 @@ class ReferentielService implements ReferentielServiceInterface
         'statut'=> $data['statut'],
         'photo'=> $data['photo'],
     ]);
-
     if (isset($data['competences'])) {
         foreach ($data['competences'] as $competence) {
                 $this->addCompetenceToReferentiel($referentiel["uid"], $competence);
@@ -68,6 +67,7 @@ class ReferentielService implements ReferentielServiceInterface
             'duree_aquisition'=> $data['duree_aquisition'],
             'type'=> $data['type'],
         ];
+        
         $competence = $this->referentielRepository->addCompetenceToReferentiel($referentielId, $competenceData);
     
         if (isset($data['modules'])) {
