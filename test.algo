@@ -1,0 +1,112 @@
+
+
+
+promotions = data;
+_init_promo = 1
+
+_next_index_promo = 0;
+_countPromo = promotions->count();
+
+if (_countPromo == 1){
+    _next_index_promo += 1
+} eles{
+    last_index_Promo = _countPromo - 1
+}
+
+
+------------------------------------------------
+
+
+
+
+public function create (data){
+$dataPromo = Promo::all(); // recupere tout les promotion
+$nextPromoIndex = generatePromoIndex($dataPromo);
+
+Promo::create(null,$data,"promotion".$next_index_promo);
+}
+
+function generatePromoIndex($promotions) {
+    $init_promo = 1; 
+    $next_index_promo = 0; 
+    $countPromo = count($promotions); 
+
+    
+    if ($countPromo == 1) {
+        $next_index_promo += 1; 
+    } else {
+        
+        $last_index_Promo = $countPromo - 1; 
+        $next_index_promo = $promotions[$last_index_Promo] + 1; 
+    }
+
+    return $next_index_promo; 
+}
+
+-----------------------------------------------
+
+
+$promotions = [1, 2, 3]; 
+$nextPromoIndex = generatePromoIndex($promotions);
+echo " promotion est : " . $nextPromoIndex; 
+--------------------------------------------------
+
+ $next_index_promo = 1; 
+
+    if (!empty($promotions)) {
+        $last_indices = array_map(function($promo) {
+            return (int) filter_var($promo, FILTER_SANITIZE_NUMBER_INT);
+        }, $promotions);
+
+        $next_index_promo = max($last_indices) + 1;
+    }
+    return $next_index_promo; 
+
+
+
+
+
+
+
+    --------------------------
+
+        // public function create(array $data)
+    // {
+       
+    //     if (isset($data['photo'])) {
+    //         $firebaseFolder = 'promotions/photos';
+    //         $fileName = $data['libelle'] . '.png';
+
+    //         // Upload du fichier sur Firebase Storage
+    //         $data['photo'] = $this->storageService->uploadFile(
+    //             storage_path('app/public/' . $data['photo']),
+    //             $firebaseFolder,
+    //             $fileName
+    //         );
+    //     }
+    //     // Récupérer toutes les promotions existantes et générer un nouvel index
+    //     $allPromotions = $this->promotionRepository->all();
+    //     $promoIndex = $this->generatePromoIndex($allPromotions);
+
+    //     // Mise à jour du libellé de la promotion avec le nouvel index
+    //     $data['libelle'] = "promotion" . $promoIndex;
+
+    //     // Création de la promotion dans le référentiel
+    //     $promotion = $this->promotionRepository->create([
+    //         'libelle' => $data['libelle'],
+    //         'date_debut' => $data['date_debut'],
+    //         'date_fin' => $data['date_fin'],
+    //         'duree' => $data['duree'],
+    //         'etat' => $data['etat'],
+    //         'photo' => $data['photo'] ?? null,
+    //     ]);
+
+    //     // Associer des référentiels à la promotion si présents
+    //     if (isset($data['referentiels'])) {
+    //         foreach ($data['referentiels'] as $referentiel) {
+    //             $this->addReferentiel($promotion['uid'], $referentiel);
+    //         }
+    //     }
+
+    //     return $promotion;
+    // }
