@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Services\Interfaces\ReferentielServiceInterface;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreReferentielRequest;
 
 class ReferentielController extends Controller
 {
@@ -15,8 +16,9 @@ class ReferentielController extends Controller
 
     public function index(Request $request)
     {
-        $statut = $request->query('statut'); 
-        $data = $this->referentielService->getAllReferentiels($statut);
+        $statut = $request->query('statut');
+        $format = $request->formatFile;
+        $data = $this->referentielService->getAllReferentiels($statut, $format);
         return response()->json($data);
     }
 
@@ -25,7 +27,7 @@ class ReferentielController extends Controller
         return response()->json($this->referentielService->addCompetenceToReferentiel($referentielId, $data));
     }
 
-    public function store(Request $request)
+    public function store(StoreReferentielRequest $request)
     {
         $ref = $request->all();
     

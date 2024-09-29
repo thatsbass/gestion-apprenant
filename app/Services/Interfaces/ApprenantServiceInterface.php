@@ -11,6 +11,4 @@ interface ApprenantServiceInterface
     public function createApprenant(array $data);
 
     public function update($id, array $data);
-
-    public function delete($id);
 }

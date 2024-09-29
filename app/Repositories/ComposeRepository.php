@@ -17,16 +17,17 @@ class ComposeRepository implements ComposeRepositoryInterface
         $this->repoFirebase = $repoFirebase;
         $this->repoPgsql = $repoPgsql;
 
-        $this->activeRepository = app(UserFirebaseRepository::class);
+        $this->activeRepository = app(UserRepositoryInterface::class);
     }
 
 
   
 
-    public function all()
+    public function all($request)
     {
-        return $this->activeRepository->all();
+        return $this->activeRepository->all($request);
     }
+
 
     public function find($id)
     {

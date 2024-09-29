@@ -13,9 +13,17 @@ class UserRepository implements UserRepositoryInterface
         
     }
 
-    public function all()
+    public function all($request)
     {
-        return User::all();
+        $data = User::with('role');
+
+        if ($request->has('role')) {
+            $data->whereHas('role', function ($query) use ($request) {
+                $query->where('libelle', $request->role);
+            });
+        }
+
+        return $data->get()->toArray();
     }
 
     public function find($id)

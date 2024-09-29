@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Services\Firebase\FirebaseStorageService;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ModelExport;
@@ -87,13 +88,15 @@ class ExcelService
 
     public function exportExcelFile(array $data, $headers, $name) 
     {
-        $filePath = storage_path('app/excelListe/' . $name . '.xlsx');
+        $filePath = storage_path('app/public/excelListe/' . $name . '.xlsx');
 
         if (!is_dir(dirname($filePath))) {
             mkdir(dirname($filePath), 0777, true);
         }
-        Excel::store(new ModelExport($data, $headers), 'excelListe/' . $name . '.xlsx', 'local');
+        Excel::store(new ModelExport($data, $headers), 'public/excelListe/' . $name . '.xlsx', 'local');
 
-        echo "Le fichier Excel a été exporté avec succès dans le dossier: " . dirname($filePath);
+        $urlUpload = app(FirebaseStorageService::class)->uploadFile($filePath, 'excelListe', $name . '.xlsx');
+
+        return "Le fichier Excel a été exporté avec succès dans le dossier: " . dirname($filePath)." et \n".$urlUpload;
     }
 }

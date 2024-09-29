@@ -6,7 +6,7 @@ interface ReferentielServiceInterface
 {
     public function createReferentiel(array $data);
 
-    public function getAllReferentiels($statut = "actif");
+    public function getAllReferentiels($statut = "actif", $format = null);
 
     public function getReferentielById($id);
 

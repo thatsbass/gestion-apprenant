@@ -27,9 +27,13 @@ class ApprenantRepository implements ApprenantRepositoryInterface
         return Referentiel::create($data);
     }
 
-    public function update($id, array $data): bool
+    public function update($id, array $data)
     {
-        return Referentiel::update($id, $data);
+        $referentiel = $this->find($id);
+        if (!$referentiel) {
+            return false;
+        }
+        Referentiel::update($id, $data);
     }
 
     public function delete($id): bool
@@ -37,22 +41,5 @@ class ApprenantRepository implements ApprenantRepositoryInterface
         return Referentiel::destroy($id);
     }
 
-    public function addCompetenceToReferentiel($referentielId, array $competenceData)
-    {
-        $referentiel = $this->find($referentielId);
-        if (!$referentiel) {
-            return false;
-        }
-        return Referentiel::create($competenceData, $competenceData['nom'], "referentiels/{$referentielId}/competences");
-    }
-
-    public function addModuleToCompetence($referentielId, $competenceName, array $moduleData)
-    {
-        $referentiel = $this->find($referentielId);
-        if (!$referentiel) {
-            return false;
-        }
-
-        return Referentiel::create($moduleData, $moduleData['nom'] ,"referentiels/{$referentielId}/competences/{$competenceName}/modules");
-    }
+    
 }
