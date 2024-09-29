@@ -31,11 +31,21 @@ class PromotionFirebaseRepository implements
         return Promotion::create("{$id}/referentiels", $data, $data["libelle"]);
     }
 
-    public function removeReferentiel($id)
+    public function removeReferentiel($idPromotion,$libelleReferentiel)
     {
+        $promotion = Promotion::find($idPromotion);
+        if (!$promotion) {
+            return false;
+        }
+        return Promotion::delete("{$idPromotion}/referentiels/{$libelleReferentiel}");
     }
     public function closePromotion($id)
     {
+        $promotion = Promotion::find($id);
+        if (!$promotion) {
+            return false;
+        }
+        return Promotion::update($id, "etat", "cloture");
     }
     public function getReferentielActivePromotion($id)
     {

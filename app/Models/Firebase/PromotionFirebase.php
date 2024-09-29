@@ -15,7 +15,7 @@ class PromotionFirebase extends FirebaseModel
         'date_fin',
         'duree',
         'etat', // actif, cloture, inactif,
-        'photo',
+        // 'photo',
         'referntiels',
     ];
 

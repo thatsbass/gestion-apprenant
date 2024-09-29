@@ -9,7 +9,7 @@ interface PromotionServiceInterface
     public function delete($id);
     public function all();
     public function addReferentielToPromotion($id, array $data);
-    public function removeReferentiel($id);
+    public function removeReferentiel($idPromotion, $libelleReferentiel);
     public function closePromotion($id);
     public function getReferentielActivePromotion($id);
     public function getStaticPromotion($id);

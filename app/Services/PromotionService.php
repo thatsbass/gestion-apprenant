@@ -23,7 +23,7 @@ class PromotionService implements PromotionServiceInterface
 
     public function create(array $data)
     {
-        
+       
         $existingPromotion = Promotion::where("libelle", $data["libelle"]);
 
         if ($existingPromotion) {
@@ -33,7 +33,6 @@ class PromotionService implements PromotionServiceInterface
             ];
         }
 
-        // Gestion des dates et de la durée
         if (isset($data["date_debut"]) && isset($data["date_fin"])) {
             $startDate = new DateTime($data["date_debut"]);
             $endDate = new DateTime($data["date_fin"]);
@@ -50,12 +49,9 @@ class PromotionService implements PromotionServiceInterface
                 ->format("Y-m-d");
         }
 
-        // Gestion du fichier photo
         if (isset($data["photo"])) {
             $data["photo"] = $this->uploadPhoto($data);
         }
-
-        // Initialisation de l'état de la promotion
         $data["etat"] = "inactif";
 
         // Création de la promotion
@@ -65,7 +61,7 @@ class PromotionService implements PromotionServiceInterface
             "date_fin" => $data["date_fin"],
             "duree" => $data["duree"],
             "etat" => $data["etat"],
-            "photo" => $data["photo"],
+            // "photo" => $data["photo"],
         ]);
 
         $referentielArray = $data["referentiels"] ?? [];
@@ -84,7 +80,6 @@ class PromotionService implements PromotionServiceInterface
         }
         return $promotion;
     }
-
     public function addReferentielToPromotion(
         $promotionId,
         array $referentielData
@@ -104,10 +99,18 @@ class PromotionService implements PromotionServiceInterface
     }
     public function all()
     {
+        return $this->promotionRepository->all();
     }
-    public function removeReferentiel($id)
+
+    public function removeReferentiel($idPromotion,$libelleReferentiel)
     {
+        $this->promotionRepository->removeReferentiel(
+            $idPromotion,
+            $libelleReferentiel
+        );
+        return true;
     }
+
     public function closePromotion($id)
     {
     }

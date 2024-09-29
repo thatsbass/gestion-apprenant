@@ -24,8 +24,8 @@ Route::get('/referentiels', [ReferentielController::class, 'index']);
 
 Route::post('/apprenants/import', [ApprenantController::class, 'import']);
 
-Route::post('/promotions',[PromotionController::class,'store']);
-Route::patch('/promotions/{id}', [PromotionController::class,'updatePromotionInfos']);
+Route::post('/promotions',[PromotionController::class,'store']); // done
+Route::patch('/promotions/{id}', [PromotionController::class,'updatePromotionInfos']); 
 Route::patch('promotions/{id}/refentiels', [PromotionController::class,'addReferentielToPromotion']);
 Route::patch('promotions/{id}/etat', [PromotionController::class,'updateStatusPromotion']);
 Route::get('promotions/encours', [PromotionController::class,'getPromotionActif']);
