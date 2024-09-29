@@ -14,9 +14,13 @@ class UserFirebaseRepository implements UserRepositoryInterface
     }
 
  
-    public function all()
+    public function all($request)
     {
-        return User::all();
+        $data = User::all();
+        if ($request->has('role')) {
+            $data = User::where('role', $request->role);
+        }
+        return $data;
     }
     public function find($id)
     {

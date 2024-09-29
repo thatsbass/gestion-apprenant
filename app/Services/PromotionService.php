@@ -61,7 +61,7 @@ class PromotionService implements PromotionServiceInterface
             "date_fin" => $data["date_fin"],
             "duree" => $data["duree"],
             "etat" => $data["etat"],
-            // "photo" => $data["photo"],
+            "photo" => $data["photo"],
         ]);
 
         $referentielArray = $data["referentiels"] ?? [];
@@ -102,7 +102,7 @@ class PromotionService implements PromotionServiceInterface
         return $this->promotionRepository->all();
     }
 
-    public function removeReferentiel($idPromotion,$libelleReferentiel)
+    public function removeReferentiel($idPromotion, $libelleReferentiel)
     {
         $this->promotionRepository->removeReferentiel(
             $idPromotion,
@@ -113,6 +113,8 @@ class PromotionService implements PromotionServiceInterface
 
     public function closePromotion($id)
     {
+        $this->promotionRepository->closePromotion($id);
+        return true;
     }
     public function getReferentielActivePromotion($id)
     {

@@ -21,30 +21,33 @@ class UserService
 
     public function all($request)
     {
-        $data = $this->repository->all()->toArray();
+        $data = $this->repository->all($request);
+        $time = time();
 
         if ($request['format'] === 'pdf') {
-            $url = app(ExportPdfService::class)->export(['users' => $data], 'users/index', 'Liste_users');
+            $url = app(ExportPdfService::class)->export(['users' => $data], 'users/index', 'Liste_users'.$time);
         } 
         elseif ($request['format'] === 'excel') {
             $formattedData = array_map(function($item) {
                 return [
-                    'Nom' => $item->nom,
-                    'Prenom' => $item->prenom,
-                    'Telephone' => $item->telephone,
-                    'Email' => $item->email,
-                    'Fonction' => $item->fonction,
-                    'Adresse' => $item->adresse,
-                    'Rôle' => $item->role,
-                    'Statut' => $item->statut,
+                    'Nom' => $item['nom'],
+                    'Prenom' => $item['prenom'],
+                    'Telephone' => $item['telephone'],
+                    'Email' => $item['email'],
+                    'Fonction' => $item['fonction'],
+                    'Adresse' => $item['adresse'],
+                    'Rôle' => is_array($item['role']) ? ($item['role']['libelle'] ?? $item['role']) : $item['role'],
+                    'Statut' => $item['statut'],
                 ];
             }, $data);
 
-            $headers = ['Nom', 'Prenom', 'Telephone', 'Email', 'Fonction', 'Adresse', 'Rôle', 'Statut'];
-            $url = app(ExcelService::class)->exportExcelFile($formattedData, $headers, 'Liste_users');
+
+            $firstKey = array_key_first($formattedData);
+            $headers = !empty($formattedData) ? array_keys($formattedData[$firstKey]) : [];
+            $url = app(ExcelService::class)->exportExcelFile($formattedData, $headers, 'Liste_users'.$time);
         }
         else {
-            $url =  $this->repository->all()->map->toArray();
+            $url = $data;
         }
         return $url;
     }

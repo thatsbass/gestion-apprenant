@@ -31,7 +31,7 @@ class PromotionFirebaseRepository implements
         return Promotion::create("{$id}/referentiels", $data, $data["libelle"]);
     }
 
-    public function removeReferentiel($idPromotion,$libelleReferentiel)
+    public function removeReferentiel($idPromotion, $libelleReferentiel)
     {
         $promotion = Promotion::find($idPromotion);
         if (!$promotion) {
@@ -45,7 +45,8 @@ class PromotionFirebaseRepository implements
         if (!$promotion) {
             return false;
         }
-        return Promotion::update($id, "etat", "cloture");
+        $promotion['etat'] = "cloture";
+        return Promotion::update($id, $promotion);
     }
     public function getReferentielActivePromotion($id)
     {

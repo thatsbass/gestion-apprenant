@@ -29,6 +29,7 @@ class ReferentielService implements ReferentielServiceInterface
         'statut'=> $data['statut'],
         'photo'=> $data['photo'],
     ]);
+
     if (isset($data['competences'])) {
         foreach ($data['competences'] as $competence) {
                 $this->addCompetenceToReferentiel($referentiel["uid"], $competence);
@@ -38,10 +39,30 @@ class ReferentielService implements ReferentielServiceInterface
 }
 
 
-    public function getAllReferentiels($statut = "actif")
+    public function getAllReferentiels($statut = "actif", $format = null)
     {
-        $data = $this->referentielRepository->findByStatut($statut ?? "actif")->toArray();
-       return app(ExportPdfService::class)->export(['referentiels' => $data], 'referentiels/index', 'Liste_referentiels');
+        $data = $this->referentielRepository->findByStatut($statut ?? "actif");
+
+        $time = time();
+        if ($format === 'pdf') {
+            $data = app(ExportPdfService::class)->export(['referentiels' => $data], 'referentiels/index', 'Liste_referentiels'.$time);
+        } 
+        elseif ($format === 'excel') {
+            $formattedData = array_map(function($item) {
+                return [
+                    'Code' => $item['code'],
+                    'Libelle' => $item['libelle'],
+                    'Statut' => $item['statut'],
+                    'Description' => $item['description'],
+                ];
+            }, $data);
+
+            $firstKey = array_key_first($formattedData);
+            $headers = !empty($formattedData) ? array_keys($formattedData[$firstKey]) : [];
+            $data = app(ExcelService::class)->exportExcelFile($formattedData, $headers, 'Liste_referentiels'.$time);
+        }
+
+       return $data;
     }
     public function getReferentielById($id)
     {
@@ -67,7 +88,6 @@ class ReferentielService implements ReferentielServiceInterface
             'duree_aquisition'=> $data['duree_aquisition'],
             'type'=> $data['type'],
         ];
-        
         $competence = $this->referentielRepository->addCompetenceToReferentiel($referentielId, $competenceData);
     
         if (isset($data['modules'])) {
