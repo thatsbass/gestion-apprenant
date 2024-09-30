@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# Démarrer Nginx
-service nginx start
+nginx &
 
-# Démarrer PHP-FPM
 php-fpm

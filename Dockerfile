@@ -47,7 +47,6 @@ RUN chown -R www-data:www-data /var/www/storage \
     && chmod -R 775 /var/www/bootstrap/cache
 
 
-
 # Exposer le port
 EXPOSE 80 9000
 # Copie le script de démarrage

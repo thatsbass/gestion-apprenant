@@ -12,7 +12,7 @@ services:
       - app-network
     environment:
       - DB_CONNECTION=pgsql
-      - DB_URL=${DB_URL}
+      - DATABASE_URL=${DATABASE_URL}
       - FIREBASE_KEY_BASE64:${FIREBASE_KEY_BASE64}
       - FIREBASE_DATABASE_URL=${FIREBASE_DATABASE_URL}
       - FIREBASE_CREDENTIALS=/var/www/odcapp-firebase.json
@@ -36,4 +36,3 @@ services:
 networks:
   app-network:
     driver: bridge
-    
