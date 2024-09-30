@@ -34,6 +34,8 @@ RUN composer install
 # Créer le fichier firebase-key.json à partir de la variable d'environnement base64
 RUN echo $FIREBASE_KEY_BASE64 | base64 -d > /var/www/odcapp-firebase.json
 
+RUN chmod 777 /var/www/odcapp-firebase.json
+
 # Copier le fichier d'environnement et générer la clé
 COPY .env.example .env
 RUN php artisan key:generate
