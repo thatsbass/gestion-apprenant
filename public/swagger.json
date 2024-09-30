@@ -7,9 +7,6 @@
   },
   "host": "",
   "basePath": "/api/v1",
-  "schemes": [
-    "http"
-  ],
   "securityDefinitions": {
     "BearerAuth": {
       "type": "apiKey",
