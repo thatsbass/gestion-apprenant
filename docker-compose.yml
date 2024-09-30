@@ -6,7 +6,6 @@ services:
     container_name: app
     volumes:
       - .:/var/www
-      - ./odcapp-firebase.json:/var/www/odcapp-firebase.json
     ports:
       - "3000:8000"
     networks:
@@ -16,7 +15,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - FIREBASE_KEY_BASE64=${FIREBASE_KEY_BASE64}
       - FIREBASE_DATABASE_URL=${FIREBASE_DATABASE_URL}
-      - FIREBASE_CREDENTIALS=/var/www/odcapp-firebase.json
+      - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS}
       - QUEUE_CONNECTION=database
 
 networks:
