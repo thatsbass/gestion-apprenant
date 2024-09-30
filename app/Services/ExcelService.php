@@ -2,7 +2,8 @@
 
 namespace App\Services;
 
-use App\Services\Firebase\FirebaseStorageService;
+// use App\Services\Firebase\FirebaseStorageService;
+use App\Facade\UploadPhotoFacade as Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ModelExport;
@@ -12,21 +13,19 @@ class ExcelService
 
     public static function extractExcelImages($filePath)
     {
-        // Charger le fichier Excel
+     
         $spreadsheet = IOFactory::load(storage_path('app/public/'.$filePath));
 
-        // Obtenir les images de la première feuille
         $sheet = $spreadsheet->getActiveSheet();
         $drawings = $sheet->getDrawingCollection();
 
-        // Chemin du dossier de destination pour les images
+      
         $destinationPath = storage_path('app/temp');
 
         if (!is_dir($destinationPath)) {
             mkdir($destinationPath, 0777, true);
         }
 
-        // Obtenir les valeurs des colonnes spécifiques
         $columns = [
             'telephone' => 'E',
             'photo' => 'G',
@@ -50,13 +49,11 @@ class ExcelService
             $telephone = $values['telephone'][$index] ?? 'unknown';
 
             if ($drawing instanceof \PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing) {
-                // Obtenir l'image depuis Excel
                 ob_start();
                 call_user_func($drawing->getRenderingFunction(), $drawing->getImageResource());
                 $imageContents = ob_get_contents();
                 ob_end_clean();
 
-                // Déterminer le type d'image et son extension
                 $extension = match ($drawing->getMimeType()) {
                     'image/jpeg' => 'jpg',
                     'image/png' => 'png',
@@ -95,7 +92,7 @@ class ExcelService
         }
         Excel::store(new ModelExport($data, $headers), 'public/excelListe/' . $name . '.xlsx', 'local');
 
-        $urlUpload = app(FirebaseStorageService::class)->uploadFile($filePath, 'excelListe', $name . '.xlsx');
+        $urlUpload =Storage::uploadFile($filePath, 'excelListe', $name . '.xlsx');
 
         return "Le fichier Excel a été exporté avec succès dans le dossier: " . dirname($filePath)." et \n".$urlUpload;
     }

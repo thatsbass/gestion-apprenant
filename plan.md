@@ -205,11 +205,6 @@ Mettre à jour et supprimer des documents.
 
 
 
-
-
-
-
-
 2 Model ( UserEloquent et UserFirebase)
     - UserEloquen extends Model
     - UserFirebase (doit etre facade) extends FirebaseModel

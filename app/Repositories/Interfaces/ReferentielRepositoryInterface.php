@@ -17,10 +17,16 @@ interface ReferentielRepositoryInterface
 
     public function addCompetenceToReferentiel($referentielId, array $competenceData);
 
-    // public function getCompetencesForReferentiel($referentielId);
+    public function getCompetencesForReferentiel($referentielId);
 
-    // public function updateCompetence($referentielId, $competenceId, array $data);
+    public function deleteCompetence($referentielId, $competenceId);
 
-    // public function deleteCompetence($referentielId, $competenceId);
+    public function addModuleToCompetence($referentielId, $competenceId, array $moduleData);
+
+    public function getReferentielByIdWithModules($referentielId);
+
+    public function getModulesForCompetence($referentielId, $competenceId);
+
+    public function deleteModuleToCompetence($referentielId, $competenceId, $moduleiD);
 
 }

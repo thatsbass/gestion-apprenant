@@ -1,11 +1,12 @@
 <?php
 
 namespace App\Services\Firebase;
+use App\Services\Interfaces\FirebaseStorageInterface;
 use Kreait\Laravel\Firebase\Facades\Firebase;
-class FirebaseStorageService
+
+class FirebaseStorageService implements FirebaseStorageInterface
 {
     protected $firestore;
-    protected $credentials;
 
     public function __construct()
     {

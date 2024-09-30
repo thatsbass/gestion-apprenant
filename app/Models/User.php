@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Facade\RoleFacade as checkRole;
 use App\Models\Role;
 
 
@@ -42,5 +43,24 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role_id === checkRole::getId('Admin');
+    }
+    public function isManager(): bool
+    {
+        return $this->role_id === checkRole::getId('Manager');
+    }   
+    public function isCME(): bool{
+        return $this->role_id === checkRole::getId('CME');
+    }
+    public function isCoach(): bool{
+        return $this->role_id === checkRole::getId('Coach');
+    }
+
+    public function isApprenant(string $role): bool{
+        return $this->role_id === checkRole::getId('Apprenant');
     }
 }

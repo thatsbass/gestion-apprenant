@@ -64,9 +64,19 @@ class ReferentielService implements ReferentielServiceInterface
 
        return $data;
     }
-    public function getReferentielById($id)
+
+    public function getReferentielById($id, $filtre)
     {
-        return $this->referentielRepository->find($id);
+        if ($filtre === "competences") {
+            return [
+                "Competences" => $this->referentielRepository->getCompetencesForReferentiel($id) ];
+        }
+        elseif ($filtre === "modules") {
+            return [
+                "Modules" => $this->referentielRepository->getReferentielByIdWithModules($id) ];
+        }
+        return [
+            "Referentiels" => $this->referentielRepository->find($id) ];
     }
 
     public function updateReferentiel($id, array $data)
@@ -76,6 +86,7 @@ class ReferentielService implements ReferentielServiceInterface
 
     public function deleteReferentiel($id)
     {
+        $this->referentielRepository->update($id, ['statut' => 'archiver']);
         return $this->referentielRepository->delete($id);
     }
 
@@ -103,4 +114,9 @@ class ReferentielService implements ReferentielServiceInterface
         $competence = $this->referentielRepository->addModuleToCompetence($referentielId, $competenceId, $competenceData);
         return $competence;
     }
+
+    public function getArchivedReferentiels() {
+        return $this->referentielRepository->findByStatut("archiver");
+    }
 }
+

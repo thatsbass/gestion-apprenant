@@ -6,19 +6,16 @@ use App\Services\Firebase\FirebaseStorageService;
 use App\Services\Interfaces\PromotionServiceInterface;
 use App\Facade\PromotionFacade as Promotion;
 use App\Facade\ReferentielFacade as Referentiel;
+use App\Facade\UploadPhotoFacade as Storage;
 use DateTime;
 
 class PromotionService implements PromotionServiceInterface
 {
-    protected $storageService;
     protected $promotionRepository;
 
-    public function __construct(
-        PromotionFirebaseRepositoryInterface $promotionFirebaseRepository,
-        FirebaseStorageService $storageService
-    ) {
+    public function __construct(PromotionFirebaseRepositoryInterface $promotionFirebaseRepository) {
+        
         $this->promotionRepository = $promotionFirebaseRepository;
-        $this->storageService = $storageService;
     }
 
     public function create(array $data)
@@ -54,7 +51,6 @@ class PromotionService implements PromotionServiceInterface
         }
         $data["etat"] = "inactif";
 
-        // Création de la promotion
         $promotion = $this->promotionRepository->create([
             "libelle" => $data["libelle"],
             "date_debut" => $data["date_debut"],
@@ -68,13 +64,9 @@ class PromotionService implements PromotionServiceInterface
         if (!empty($referentielArray)) {
             foreach ($referentielArray as $ref) {
                 $referentiel = array_values(
-                    Referentiel::where("libelle", $ref)
-                )[0];
+                    Referentiel::where("libelle", $ref))[0];
                 if ($referentiel && $referentiel["statut"] == "actif") {
-                    $this->addReferentielToPromotion(
-                        $promotion["uid"],
-                        $referentiel
-                    );
+                    $this->addReferentielToPromotion($promotion["uid"], $referentiel);
                 }
             }
         }
@@ -127,8 +119,9 @@ class PromotionService implements PromotionServiceInterface
     {
         $firebaseFolder = "promotions/photos";
         $fileName = $data["libelle"] . "png";
-        $url = $this->storageService->uploadFile(
-            storage_path("app/public/" . $data["photo"]),
+        $localFilePath = storage_path("app/public/" . $data["photo"]);
+        $url = Storage::uploadFile(
+            $localFilePath,
             $firebaseFolder,
             $fileName
         );

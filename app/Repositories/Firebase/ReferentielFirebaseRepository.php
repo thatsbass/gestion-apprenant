@@ -32,9 +32,9 @@ class ReferentielFirebaseRepository implements ReferentielRepositoryInterface
         Referentiel::update($id, $data);
     }
 
-    public function delete($id): bool
+    public function delete($id)
     {
-        return Referentiel::destroy($id);
+        return Referentiel::delete($id);
     }
 
     public function addCompetenceToReferentiel($referentielId, array $competenceData)
@@ -55,5 +55,42 @@ class ReferentielFirebaseRepository implements ReferentielRepositoryInterface
         }
 
         return Referentiel::create("{$referentielId}/competences/{$competenceId}/modules", $moduleData, $moduleData['nom']);
+    }
+
+    public function getCompetencesForReferentiel($referentielId) {
+        $referentiel = Referentiel::find($referentielId);
+        if (!$referentiel) {
+            return false;
+        }
+        return Referentiel::find("{$referentielId}/competences");
+    }
+
+    public function getReferentielByIdWithModules($referentielId) {
+        $referentiel = Referentiel::find($referentielId);
+        if (!$referentiel) {
+            return false;
+        }
+        $competences = $referentiel['competences'];
+        $modules = [];
+        foreach ($competences as $competenceId => $competence) {
+            $modules[$competenceId] = $this->getModulesForCompetence($referentielId, $competenceId);
+        }
+        return $modules;
+    }
+
+    public function getModulesForCompetence($referentielId, $competenceId) {
+        $competence = Referentiel::find("{$referentielId}/competences/{$competenceId}");
+        if (!$competence) {
+            return false;
+        }
+        return $competence['modules'];
+    }
+
+    public function deleteCompetence($referentielId, $competenceId) {
+        return Referentiel::softDelete("{$referentielId}/competences/{$competenceId}");
+    }
+
+    public function deleteModuleToCompetence($referentielId, $competenceId, $moduleId) {
+        return Referentiel::softDelete("{$referentielId}/competences/{$competenceId}/modules/{$moduleId}");
     }
 }
