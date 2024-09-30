@@ -1,91 +1,1045 @@
 {
-  "openapi": "3.0.0",
+  "swagger": "2.0",
   "info": {
-    "title": "Auth API",
-    "description": "API for user authentication using Bearer Token.",
+    "title": "Ecole 221",
+    "description": "API pour la gestion de l'école 221.",
     "version": "1.0.0"
   },
+  "host": "",
+  "basePath": "/api/v1",
+  "schemes": [
+    "http"
+  ],
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Enter your bearer token in the format **Bearer {token}**"
+    }
+  },
   "paths": {
-    "/api/auth/login": {
+    "/auth/login": {
       "post": {
-        "summary": "Log in a user",
-        "description": "Logs in a user by validating their email and password, returning a Bearer Token.",
-        "tags": ["Auth"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "user@example.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "format": "password",
-                    "example": "password123"
-                  }
-                },
-                "required": ["email", "password"]
-              }
+        "summary": "Login User",
+        "description": "Authenticates a user and returns a token.",
+        "parameters": [
+          {
+            "name": "credentials",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginCredentials"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
-            "description": "Login successful, returns the Bearer Token.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "type": "string",
-                      "example": "eyJhbGciOiJIUzI1NiIsInR5..."
-                    }
-                  }
+            "description": "Successful login",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string"
                 }
               }
             }
           },
           "401": {
-            "description": "Unauthorized. Invalid email or password."
+            "description": "Unauthorized"
           }
         }
       }
     },
-    "/api/logout": {
+    "/auth/logout": {
       "post": {
-        "summary": "Log out a user",
-        "description": "Logs out a user using the Bearer Token.",
-        "tags": ["Auth"],
-        "security": [{
-          "bearerAuth": []
-        }],
+        "summary": "Logout User",
+        "description": "Logs out the authenticated user.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Logout successful."
+            "description": "Successful logout"
           },
           "401": {
-            "description": "Unauthorized. Bearer Token is missing or invalid."
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "summary": "Create User",
+        "description": "Creates a new user.",
+        "parameters": [
+          {
+            "name": "nom",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Nom de l'utilisateur."
+          },
+          {
+            "name": "prenom",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Prénom de l'utilisateur."
+          },
+          {
+            "name": "adresse",
+            "in": "path",
+            "required": false,
+            "type": "string",
+            "description": "Adresse de l'utilisateur."
+          },
+          {
+            "name": "telephone",
+            "in": "path",
+            "required": false,
+            "type": "string",
+            "description": "Numéro de téléphone de l'utilisateur."
+          },
+          {
+            "name": "fonction",
+            "in": "path",
+            "required": false,
+            "type": "string",
+            "description": "Fonction de l'utilisateur."
+          },
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Email de l'utilisateur."
+          },
+          {
+            "name": "statut",
+            "in": "path",
+            "required": false,
+            "type": "string",
+            "enum": ["Bloquer", "Actif"],
+            "description": "Statut de l'utilisateur (Bloquer ou Actif)."
+          },
+          {
+            "name": "role",
+            "in": "path",
+            "required": false,
+            "type": "string",
+            "description": "Rôle de l'utilisateur."
+          },
+          {
+            "name": "password",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Mot de passe de l'utilisateur."
+          },
+          {
+            "name": "photo",
+            "in": "formData",
+            "required": false,
+            "type": "file",
+            "description": "Fichier image pour la photo de l'utilisateur."
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Users",
+        "description": "Retrieves a list of users.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/referentiels": {
+      "post": {
+        "summary": "Créer un référentiel",
+        "description": "Crée un nouveau référentiel avec des compétences et des modules associés.",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "formData",
+            "required": true,
+            "type": "string",
+            "description": "Code unique du référentiel."
+          },
+          {
+            "name": "libelle",
+            "in": "formData",
+            "required": true,
+            "type": "string",
+            "description": "Libellé unique du référentiel."
+          },
+          {
+            "name": "description",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": "Description du référentiel."
+          },
+          {
+            "name": "photo",
+            "in": "formData",
+            "required": false,
+            "type": "file",
+            "description": "Photo de couverture du référentiel."
+          },
+          {
+            "name": "competences",
+            "in": "body",
+            "required": true,
+            "description": "Liste des compétences à associer au référentiel.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "nom": {
+                    "type": "string",
+                    "description": "Nom de la compétence.",
+                    "example": "Développement Web"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description de la compétence.",
+                    "example": "Apprendre les bases du développement web."
+                  },
+                  "duree_aquisition": {
+                    "type": "integer",
+                    "description": "Durée d'acquisition de la compétence en jours.",
+                    "example": 90
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["Back-End", "Front-End"],
+                    "description": "Type de compétence (Back-End ou Front-End).",
+                    "example": "Back-End"
+                  },
+                  "modules": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "nom": {
+                          "type": "string",
+                          "description": "Nom du module.",
+                          "example": "Introduction à JavaScript"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Description du module.",
+                          "example": "Un module d'introduction au langage JavaScript."
+                        },
+                        "duree": {
+                          "type": "integer",
+                          "description": "Durée d'acquisition du module en jours.",
+                          "example": 30
+                        }
+                      }
+                    },
+                    "description": "Liste des modules associés à la compétence."
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "responses": {
+          "201": {
+            "description": "Référentiel créé avec succès."
+          },
+          "400": {
+            "description": "Requête invalide."
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Referentiels",
+        "description": "Retrieves a list of referentiels.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of referentiels",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Referentiel"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apprenants/import": {
+      "post": {
+        "summary": "Import Apprenants",
+        "description": "Imports a list of apprenants from an Excel file.",
+        "parameters": [
+          {
+            "name": "file",
+            "in": "formData",
+            "required": true,
+            "type": "file"
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful import"
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      }
+    },
+    "/referentiels/{id}": {
+      "get": {
+        "summary": "Get a referentiel by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the referentiel",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filtre",
+            "in": "query",
+            "required": false,
+            "description": "Filter to specify what to retrieve (e.g., competences, modules)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details of the referentiel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/Referentiel"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a referentiel by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the referentiel",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateReferentielRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Referentiel updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/Referentiel"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a referentiel by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the referentiel",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Referentiel deleted successfully"
+          }
+        }
+      }
+    },
+    "/archive/referentiels": {
+      "get": {
+        "summary": "Get archived referentiels",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of archived referentiels",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Referentiel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/promotions": {
+      "post": {
+        "summary": "Create Promotion",
+        "description": "Creates a new promotion.",
+        "parameters": [
+          {
+            "name": "promotion",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Promotion"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Promotion created",
+            "schema": {
+              "$ref": "#/definitions/Promotion"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      }
+    },
+    "/promotions/{id}": {
+      "patch": {
+        "summary": "Update Promotion",
+        "description": "Updates information for a specific promotion.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "promotion",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Promotion"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Promotion updated"
+          },
+          "404": {
+            "description": "Promotion not found"
+          }
+        }
+      }
+    },
+    "/promotions/{id}/referentiels": {
+      "patch": {
+        "summary": "Add Referentiel to Promotion",
+        "description": "Adds a referentiel to a specific promotion.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "referentiel",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Referentiel"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Referentiel added to promotion"
+          },
+          "404": {
+            "description": "Promotion not found"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Referentiels by Promotion",
+        "description": "Retrieves all referentiels associated with a specific promotion.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of referentiels for the promotion",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Referentiel"
+              }
+            }
+          },
+          "404": {
+            "description": "Promotion not found"
+          }
+        }
+      }
+    },
+    "/promotions/{id}/etat": {
+      "patch": {
+        "summary": "Update Status Promotion",
+        "description": "Updates the status of a specific promotion.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "status",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["Actif", "Cloturer", "Inactif"]
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status updated"
+          },
+          "404": {
+            "description": "Promotion not found"
+          }
+        }
+      }
+    },
+    "/promotions/encours": {
+      "get": {
+        "summary": "Get Active Promotions",
+        "description": "Retrieves a list of active promotions.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of active promotions",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Promotion"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/promotions/{id}/cloturer": {
+      "patch": {
+        "summary": "Close Promotion",
+        "description": "Closes a specific promotion.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Promotion closed"
+          },
+          "404": {
+            "description": "Promotion not found"
+          }
+        }
+      }
+    },
+    "/promotions/{id}/stats": {
+      "get": {
+        "summary": "Get Promotion Stats",
+        "description": "Retrieves statistics for a specific promotion.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistics for the promotion",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "totalApprenants": {
+                  "type": "integer"
+                },
+                "completedModules": {
+                  "type": "integer"
+                },
+                "activeCompetences": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Promotion not found"
           }
         }
       }
     }
   },
-  "components": {
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "nom": {
+          "type": "string"
+        },
+        "prenom": {
+          "type": "string"
+        },
+        "adresse": {
+          "type": "string"
+        },
+        "telephone": {
+          "type": "string"
+        },
+        "fonction": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "photo": {
+          "type": "string"
+        },
+        "statut": {
+          "type": "string",
+          "enum": ["inactive", "active"]
+        },
+        "password": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "Referentiel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "code": {
+          "type": "string"
+        },
+        "libelle": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "photo": {
+          "type": "string"
+        },
+        "competences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Competence"
+          }
+        }
+      }
+    },
+    "Competence": {
+      "type": "object",
+      "properties": {
+        "nom": {
+          "type": "string",
+          "description": "Nom de la compétence."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description de la compétence."
+        },
+        "duree_aquisition": {
+          "type": "integer",
+          "description": "Durée d'acquisition de la compétence en jours."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["Back-End", "Front-End"],
+          "description": "Type de compétence."
+        },
+        "modules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Module"
+          },
+          "description": "Liste des modules associés à la compétence."
+        }
+      }
+    },
+    "Module": {
+      "type": "object",
+      "properties": {
+        "nom": {
+          "type": "string",
+          "description": "Nom du module."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description du module."
+        },
+        "duree": {
+          "type": "integer",
+          "description": "Durée d'acquisition du module en jours."
+        }
+      }
+    },
+    "Apprenant": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "nom": {
+          "type": "string"
+        },
+        "prenom": {
+          "type": "string"
+        },
+        "adresse": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "password": {
+          "type": "string"
+        },
+        "telephone": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "statut": {
+          "type": "string",
+          "enum": ["inactive", "active"]
+        },
+        "photo": {
+          "type": "string"
+        },
+        "referentiel": {
+          "$ref": "#/definitions/Referentiel"
+        }
+      }
+    },
+    "Promotion": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "libelle": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "date_debut": {
+          "type": "string",
+          "format": "date"
+        },
+        "date_fin": {
+          "type": "string",
+          "format": "date"
+        },
+        "duree": {
+          "type": "string"
+        },
+        "etat": {
+          "type": "string",
+          "enum": ["Actif", "Cloturer", "Inactif"]
+        },
+        "photo": {
+          "type": "string"
+        },
+        "referentiels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Referentiel"
+          }
+        },
+        "apprenants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Apprenant"
+          }
+        }
+      }
+    },
+    "LoginCredentials": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": ["email", "password"]
+    },
+    "LoginResponse": {
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "type": "string"
+        },
+        "token_type": {
+          "type": "string",
+          "enum": ["Bearer"]
+        },
+        "expires_in": {
+          "type": "integer"
+        }
+      }
+    },
+    "CreateUserRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": ["name", "email", "password"]
+    },
+    "UserListResponse": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/User"
+          }
+        }
+      }
+    },
+    "CreateReferentielRequest": {
+      "type": "object",
+      "properties": {
+        "libelle": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "photo": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "required": ["libelle", "description"]
+    },
+    "ReferentielListResponse": {
+      "type": "object",
+      "properties": {
+        "referentiels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Referentiel"
+          }
+        }
+      }
+    },
+    "CreatePromotionRequest": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "libelle": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "etat": {
+          "type": "string"
+        }
+      },
+      "required": ["code", "libelle", "description"]
+    },
+    "PromotionListResponse": {
+      "type": "object",
+      "properties": {
+        "promotions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Promotion"
+          }
+        }
       }
     }
-  },
-  "security": [{
-    "bearerAuth": []
-  }]
+  }    
 }

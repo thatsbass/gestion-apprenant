@@ -44,9 +44,13 @@ class ReferentielController extends Controller
     }
     
 
-    public function show($id)
+    public function show($id, Request $request)
     {
-        return response()->json($this->referentielService->getReferentielById($id));
+        // $id = $request->query('id');
+        $filtre = $request->query('filtre');
+        $data = $this->referentielService->getReferentielById(strtoupper($id), $filtre);
+
+        return response()->json($data);
     }
 
     public function update(Request $request, $id)
@@ -62,6 +66,6 @@ class ReferentielController extends Controller
 
     public function archive()
     {
-        // return response()->json($this->referentielService->getArchivedReferentiels());
+        return response()->json($this->referentielService->getArchivedReferentiels());
     }
 }

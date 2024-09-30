@@ -8,7 +8,7 @@ interface ReferentielServiceInterface
 
     public function getAllReferentiels($statut = "actif", $format = null);
 
-    public function getReferentielById($id);
+    public function getReferentielById($id, $filtre);
 
     public function updateReferentiel($id, array $data);
 
@@ -17,4 +17,5 @@ interface ReferentielServiceInterface
     public function addCompetenceToReferentiel($referentielId, array $competenceData);
 
     public function addModuleToCompetence($referentielId, $competenceName, array $competenceData);
+    public function getArchivedReferentiels();
 }

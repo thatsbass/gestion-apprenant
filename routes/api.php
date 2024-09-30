@@ -7,28 +7,42 @@ use App\Http\Controllers\ApprenantController;
 use App\Http\Controllers\ReferentielController;
 use Illuminate\Support\Facades\Route;
 
-// Routes publiques
-Route::post('auth/login', [AuthController::class, 'login']);
-Route::post('/users', [UserController::class, 'store']);
-Route::get('/users', [UserController::class, 'index']);
 
-// Routes protégées
+Route::group(['prefix' => 'v1'], function () { 
+
+// Authentification
+Route::post('auth/login', [AuthController::class, 'login']);
 Route::middleware(['auth:api'])->group(function () {
     Route::post('auth/logout', [AuthController::class,'logout']);
 });
 
+// Users
+Route::prefix('users')->group(function () {
+    Route::post('/', [UserController::class, 'store']);
+    Route::get('/', [UserController::class, 'index']);
+    });
 
+// Referentiels
+Route::prefix('referentiels')->group(function () {
+Route::post('/', [ReferentielController::class, 'store']);
+Route::get('/', [ReferentielController::class, 'index']);
+});
 
-Route::post('/referentiels', [ReferentielController::class, 'store']);
-Route::get('/referentiels', [ReferentielController::class, 'index']);
+// Apprenant
+Route::prefix('apprenants')->group(function () {
+Route::post('/import', [ApprenantController::class, 'import']);
+});
 
-Route::post('/apprenants/import', [ApprenantController::class, 'import']);
+// Promotion
+Route::prefix('promotions')->group(function () {
+Route::post('/',[PromotionController::class,'store']); 
+Route::patch('/{id}', [PromotionController::class,'updatePromotionInfos']); 
+Route::patch('/{id}/refentiels', [PromotionController::class,'addReferentielToPromotion']);
+Route::patch('/{id}/etat', [PromotionController::class,'updateStatusPromotion']);
+Route::get('/encours', [PromotionController::class,'getPromotionActif']);
+Route::patch('/{id}/cloturer', [PromotionController::class,'closePromotion']);
+Route::get('/{id}/refentiels', [PromotionController::class,'getAllReferentielsByPromotion']);
+Route::get('/{id}/stats', [PromotionController::class,'getStatsByPromotion']);
+});
 
-Route::post('/promotions',[PromotionController::class,'store']); // done
-Route::patch('/promotions/{id}', [PromotionController::class,'updatePromotionInfos']); 
-Route::patch('promotions/{id}/refentiels', [PromotionController::class,'addReferentielToPromotion']);
-Route::patch('promotions/{id}/etat', [PromotionController::class,'updateStatusPromotion']);
-Route::get('promotions/encours', [PromotionController::class,'getPromotionActif']);
-Route::patch('promotions/{id}/cloturer', [PromotionController::class,'closePromotion']);
-Route::get('promotions/{id}/refentiels', [PromotionController::class,'getAllReferentielsByPromotion']);
-Route::get('promotions/{id}/stats', [PromotionController::class,'getStatsByPromotion']);
+});

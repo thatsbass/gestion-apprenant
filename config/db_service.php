@@ -11,11 +11,11 @@ return [
                 'config' => [
                     'client_id' => env('PASSPORT_PASSWORD_GRANT_CLIENT_ID'),
                     'client_secret' => env('PASSPORT_PASSWORD_GRANT_CLIENT_SECRET'),
-                    'expiration' => env('PASSPORT_EXPIRATION', 60 * 24), // Default: 24 hours
+                    'expiration' => env('PASSPORT_EXPIRATION', 60 * 24), 
                 ],
         ],
         'model' => [
-            'user' => \App\Models\User::class, // User model
+            'user' => \App\Models\User::class, 
         ],
         'Repository'=> [
             'class' => \App\Repositories\UserRepository::class,
