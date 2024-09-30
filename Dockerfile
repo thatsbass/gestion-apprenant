@@ -1,4 +1,3 @@
-
 FROM php:8.2-fpm
 
 # Installer des dépendances
@@ -15,7 +14,6 @@ RUN apt-get update && apt-get install -y \
     git \
     libpq-dev \
     libzip-dev \
-    nginx \
     && docker-php-ext-install pdo pdo_mysql pdo_pgsql zip gd mbstring exif pcntl bcmath
 
 # Installer Composer
@@ -33,9 +31,8 @@ RUN chown -R www-data:www-data /var/www
 # Installer les dépendances du projet
 RUN composer install
 
-# Crée le fichier firebase-key.json à partir de la variable d'environnement base64
+# Créer le fichier firebase-key.json à partir de la variable d'environnement base64
 RUN echo $FIREBASE_KEY_BASE64 | base64 -d > /var/www/odcapp-firebase.json
-
 
 # Copier le fichier d'environnement et générer la clé
 COPY .env.example .env
@@ -46,11 +43,8 @@ RUN chown -R www-data:www-data /var/www/storage \
     && chmod -R 775 /var/www/storage \
     && chmod -R 775 /var/www/bootstrap/cache
 
+# Exposer le port 8000 dans le conteneur
+EXPOSE 8000
 
-# Exposer le port
-EXPOSE 80 9000
-# Copie le script de démarrage
-COPY start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
-
-CMD ["sh", "/usr/local/bin/start.sh"]
+# Lancer le serveur Laravel Artisan
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
