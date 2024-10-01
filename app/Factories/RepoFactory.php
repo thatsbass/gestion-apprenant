@@ -10,7 +10,6 @@ class RepoFactory
     public static function make($driver)
     {
         $config = config("db_service.{$driver}.auth");
-        // dd($config);
         if (!isset($config['class'])) {
             throw new InvalidArgumentException("Le driver d'authentification [{$driver}] n'est pas correctement configuré.");
         }

@@ -31,11 +31,10 @@ class ReferentielController extends Controller
     {
         $ref = $request->all();
     
-        // Vérifier si le fichier de photo est présent
         if ($request->hasFile('photo')) {
             $ref['photo'] = $request->file('photo')->store('photos/referentiels', 'public');
         } else {
-            // Retourner une erreur si la photo n'est pas présente
+            
             return response()->json(['message' => 'La photo est requise'], 400);
         }
     
@@ -46,7 +45,6 @@ class ReferentielController extends Controller
 
     public function show($id, Request $request)
     {
-        // $id = $request->query('id');
         $filtre = $request->query('filtre');
         $data = $this->referentielService->getReferentielById(strtoupper($id), $filtre);
 
