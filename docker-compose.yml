@@ -7,13 +7,12 @@ services:
     volumes:
       - .:/var/www
     ports:
-      - "3000:8000"
+      - "4000:8000"
     networks:
       - app-network
     environment:
       - DB_CONNECTION=pgsql
       - DATABASE_URL=${DATABASE_URL}
-      - FIREBASE_KEY_BASE64=${FIREBASE_KEY_BASE64}
       - FIREBASE_DATABASE_URL=${FIREBASE_DATABASE_URL}
       - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS}
       - QUEUE_CONNECTION=database
